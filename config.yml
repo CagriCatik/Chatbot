@@ -1,0 +1,45 @@
+app:
+  page_title: "Local Ollama PDF RAG"
+  page_icon: "🚚"
+  layout: "wide"
+  initial_sidebar_state: "collapsed"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(levelname)s - %(message)s"
+  datefmt: "%Y-%m-%d %H:%M:%S"
+
+embeddings:
+  model: "nomic-embed-text"
+
+vector_db:
+  persist_directory: "data/vectors"
+
+pdf:
+  zoom_slider:
+    min: 100
+    max: 1000
+    default: 1000
+    step: 50
+
+text_splitter:
+  chunk_size: 7500
+  chunk_overlap: 100
+
+prompt_templates:
+  query_prompt: >
+    You are an AI language model assistant. Your task is to generate 2
+    different versions of the given user question to retrieve relevant documents from
+    a vector database. By generating multiple perspectives on the user question, your
+    goal is to help the user overcome some of the limitations of the distance-based
+    similarity search. Provide these alternative questions separated by newlines.
+    Original question: {question}
+  response_prompt: >
+    Answer the question based ONLY on the following context:
+    {context}
+    Question: {question}
+
+default_model: "deepseek-r1:8b"
+
+temp:
+  cleanup: true
