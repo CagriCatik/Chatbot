@@ -1,21 +1,28 @@
 import streamlit as st
 import os
+import re
 import pdfplumber
 import ollama
 import warnings
+import torch
+import sys
 from typing import Any, Tuple
 from bs4 import BeautifulSoup
 from docx import Document
-import torch
 
+from langchain.schema import HumanMessage
 from config import config
 from logging_config import logger
 from pdf_utils import extract_all_pages_as_images
 from vector_db import create_vector_db, delete_vector_db
 from question_processor import process_question
 
-# Suppress torch warning
-warnings.filterwarnings('ignore', category=UserWarning, message='.*torch.classes.*')
+# Set the log level to ERROR to avoid unnecessary logs from Ollama
+os.environ["C10_LOG_LEVEL"] = "ERROR"
+original_stderr = sys.stderr
+sys.stderr = open(os.devnull, "w")
+sys.stderr = original_stderr
+warnings.filterwarnings("ignore", category=UserWarning, message=".*torch.classes.*")
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = torch.device("cpu")  # Uncomment this line to force CPU usage
@@ -198,28 +205,51 @@ def main():
             with message_container.chat_message(message["role"], avatar=avatar):
                 st.markdown(message["content"])
 
+
+
         if prompt := st.chat_input("Enter a prompt here...", key="chat_input"):
             try:
+                # Append the user prompt to the chat history
                 st.session_state["messages"].append({"role": "user", "content": prompt})
                 with message_container.chat_message("user", avatar="👨🏻‍💻"):
                     st.markdown(prompt)
 
                 with message_container.chat_message("assistant", avatar="🤖"):
                     with st.spinner(":green[processing...]"):
-                        if st.session_state["vector_db"] is not None:
-                            from langchain_ollama.chat_models import ChatOllama
-                            llm = ChatOllama(model=selected_model, device=device)
+                        from langchain_ollama.chat_models import ChatOllama
+                        llm = ChatOllama(model=selected_model, device=device)
+                        
+                        if st.session_state.get("vector_db") is not None:
                             response = process_question(prompt, st.session_state["vector_db"], llm)
-                            st.markdown(response)
                         else:
-                            st.warning("Please upload a file first.")
-
-                if st.session_state["vector_db"] is not None:
-                    st.session_state["messages"].append({"role": "assistant", "content": response})
-
+                            user_message = HumanMessage(content=prompt)
+                            response = llm.invoke([user_message])
+                        
+                        # If the response is a string containing metadata, extract only the reply text.
+                        if isinstance(response, str):
+                            # Try to extract the content between "content='" and the next "'"
+                            match = re.search(r"content='(.*?)'", response)
+                            if match:
+                                assistant_message = match.group(1)
+                            else:
+                                assistant_message = response
+                        elif hasattr(response, "message"):
+                            assistant_message = response.message.content
+                        elif isinstance(response, dict):
+                            assistant_message = response.get("content", "")
+                        else:
+                            assistant_message = str(response)
+                        
+                        st.markdown(assistant_message)
+                        st.session_state["messages"].append({"role": "assistant", "content": assistant_message})
+                        
             except Exception as e:
                 st.error(e, icon="⛔️")
                 logger.error(f"Error processing prompt: {e}")
+
+                
+
+
 
 if __name__ == "__main__":
     main()

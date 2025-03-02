@@ -3,10 +3,12 @@ version: '3.8'
 services:
   app:
     build: .
+    working_dir: /src
     ports:
-      - "8000:8000" 
+      - "8000:8000"
     volumes:
-      - .:/src    
+      - .:/src
     environment:
-      - ENV=production 
-    command: python run.py 
+      ENV: production
+    command: poetry run streamlit run src/app/main.py --server.port 8502
+
