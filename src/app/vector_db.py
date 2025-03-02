@@ -1,16 +1,17 @@
 import os
 import tempfile
 import shutil
+import streamlit as st
+import logging
+
 from typing import Optional, Dict, Union, List
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_ollama import OllamaEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_community.document_loaders import UnstructuredPDFLoader
-from langchain.schema import Document  # Import Document class
+from langchain.schema import Document 
 from bs4 import BeautifulSoup
 from docx import Document as DocxDocument
-import streamlit as st
-import logging
 from config import config, PERSIST_DIRECTORY
 
 logger = logging.getLogger(__name__)

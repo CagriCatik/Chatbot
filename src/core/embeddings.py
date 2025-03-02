@@ -1,7 +1,6 @@
 """Vector embeddings and database functionality."""
 import logging
 from typing import List
-from pathlib import Path
 from langchain_ollama import OllamaEmbeddings
 from langchain_community.vectorstores import Chroma
 

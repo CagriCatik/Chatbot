@@ -1,6 +1,5 @@
 app:
   page_title: "Local Ollama PDF RAG"
-  page_icon: "🚚"
   layout: "wide"
   initial_sidebar_state: "collapsed"
 
@@ -8,6 +7,11 @@ logging:
   level: "INFO"
   format: "%(asctime)s - %(levelname)s - %(message)s"
   datefmt: "%Y-%m-%d %H:%M:%S"
+  file: "app.log"
+  rotate:
+    when: "midnight"
+    backupCount: 7
+
 
 embeddings:
   model: "nomic-embed-text"

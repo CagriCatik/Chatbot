@@ -254,7 +254,7 @@ zipp = "3.21.0"
 # PyTorch-specific dependencies (explicitly fetched from the custom repository)
 torch = { version = "2.6.0", source = "pytorch" }
 torchvision = { version = "0.21.0", source = "pytorch" }
-torchaudio = { version = "*", source = "pytorch" }
+colorlog = "^6.9.0"
 
 [[tool.poetry.source]]
 name = "pytorch"

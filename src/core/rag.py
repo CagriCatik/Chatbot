@@ -1,6 +1,6 @@
 """RAG pipeline implementation."""
 import logging
-from typing import Any, Dict
+from typing import Any
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from langchain.retrievers.multi_query import MultiQueryRetriever

@@ -6,14 +6,14 @@ import ollama
 import warnings
 import torch
 import sys
+
 from typing import Any, Tuple
 from bs4 import BeautifulSoup
 from docx import Document
-
 from langchain.schema import HumanMessage
+
 from config import config
 from logging_config import logger
-from pdf_utils import extract_all_pages_as_images
 from vector_db import create_vector_db, delete_vector_db
 from question_processor import process_question
 
@@ -24,14 +24,19 @@ sys.stderr = open(os.devnull, "w")
 sys.stderr = original_stderr
 warnings.filterwarnings("ignore", category=UserWarning, message=".*torch.classes.*")
 
+# Determine device: GPU if available, else CPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+if device.type == "cuda":
+    logger.info("Running on GPU")
+else:
+    logger.info("Running on CPU")
+
 # device = torch.device("cpu")  # Uncomment this line to force CPU usage
 
 os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
 
 st.set_page_config(
     page_title=config["app"]["page_title"],
-    page_icon=config["app"]["page_icon"],
     layout=config["app"]["layout"],
     initial_sidebar_state=config["app"]["initial_sidebar_state"],
 )
@@ -246,10 +251,6 @@ def main():
             except Exception as e:
                 st.error(e, icon="⛔️")
                 logger.error(f"Error processing prompt: {e}")
-
-                
-
-
 
 if __name__ == "__main__":
     main()

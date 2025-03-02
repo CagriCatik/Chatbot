@@ -20,7 +20,7 @@ def process_chat(prompt: str, vector_db, selected_model, device) -> str:
         llm = ChatOllama(model=selected_model, device=device)
         if vector_db is not None:
             # Process the question using the vector DB
-            from question_processor import process_question
+            from src.app.question_processor import process_question
             response = process_question(prompt, vector_db, llm)
         else:
             # Otherwise, simply call the language model
